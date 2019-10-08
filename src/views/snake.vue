@@ -92,16 +92,16 @@ export default {
     window.addEventListener('keydown', e => {
       switch (e.keyCode) {
         case 37:
-          this.direction = 'left'
+          if (this.direction !== 'right') this.direction = 'left'
           break
         case 38:
-          this.direction = 'up'
+          if (this.direction !== 'down') this.direction = 'up'
           break
         case 39:
-          this.direction = 'right'
+          if (this.direction !== 'left') this.direction = 'right'
           break
         case 40:
-          this.direction = 'down'
+          if (this.direction !== 'up') this.direction = 'down'
           break
       }
     })
