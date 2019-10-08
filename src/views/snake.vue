@@ -1,5 +1,6 @@
 <template>
   <div class="snake">
+    <h2>Score: {{score}}</h2>
     <svg
       version="1.1"
       baseProfile="full"
@@ -46,54 +47,57 @@ export default {
         }
       ],
       direction: 'right',
+      head: null,
       food: {
         x: 0,
         y: 0
-      }
+      },
+      score: 0,
+      isEatting: false
     }
   },
   methods: {
     startGame () {
       let timer = null
-      let head = null
       timer = setInterval(() => {
-        head = this.coordinates.slice(-1)[0]
-        this.coordinates.shift()
+        if (!this.isEatting) this.coordinates.shift()
+        this.isEatting = false
+
         if (this.direction === 'right') {
-          return this.goRight(head)
+          return this.goRight()
         }
         if (this.direction === 'down') {
-          return this.goDown(head)
+          return this.goDown()
         }
         if (this.direction === 'up') {
-          return this.goUp(head)
+          return this.goUp()
         }
-        return this.goLeft(head)
-      }, 1000)
+        return this.goLeft()
+      }, 500)
       return timer
     },
-    goLeft (head) {
+    goLeft () {
       this.coordinates.push({
-        x: head.x - 20,
-        y: head.y
+        x: this.head.x - 20,
+        y: this.head.y
       })
     },
-    goRight (head) {
+    goRight () {
       this.coordinates.push({
-        x: head.x + 20,
-        y: head.y
+        x: this.head.x + 20,
+        y: this.head.y
       })
     },
-    goUp (head) {
+    goUp () {
       this.coordinates.push({
-        x: head.x,
-        y: head.y - 20
+        x: this.head.x,
+        y: this.head.y - 20
       })
     },
-    goDown (head) {
+    goDown () {
       this.coordinates.push({
-        x: head.x,
-        y: head.y + 20
+        x: this.head.x,
+        y: this.head.y + 20
       })
     },
     createFood () {
@@ -101,13 +105,14 @@ export default {
       this.food.y = (Math.floor(Math.random() * 25) * 2 + 1) * 10
       // 防止食物出現在 snake 身上
       this.coordinates.find(item => {
-        if (item.x === this.food.x && item.y === this.food.y) {
+        if (JSON.stringify(item) === JSON.stringify(this.food)) {
           return this.createFood()
         }
       })
     }
   },
   mounted () {
+    this.head = this.coordinates.slice(-1)[0]
     this.startGame()
     this.createFood()
     window.addEventListener('keydown', e => {
@@ -126,6 +131,16 @@ export default {
           break
       }
     })
+  },
+  watch: {
+    coordinates () {
+      this.head = this.coordinates.slice(-1)[0]
+      if (JSON.stringify(this.head) === JSON.stringify(this.food)) {
+        this.score += 1
+        this.isEatting = true
+        this.createFood()
+      }
+    }
   },
   destroyed () {
     window.removeEventListener('keydown', this.direction)
