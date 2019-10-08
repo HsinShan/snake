@@ -48,18 +48,19 @@ export default {
       ],
       direction: 'right',
       head: null,
+      body: null,
       food: {
         x: 0,
         y: 0
       },
       score: 0,
-      isEatting: false
+      isEatting: false,
+      timer: null
     }
   },
   methods: {
     startGame () {
-      let timer = null
-      timer = setInterval(() => {
+      this.timer = setInterval(() => {
         if (!this.isEatting) this.coordinates.shift()
         this.isEatting = false
 
@@ -73,8 +74,7 @@ export default {
           return this.goUp()
         }
         return this.goLeft()
-      }, 500)
-      return timer
+      }, 300)
     },
     goLeft () {
       this.coordinates.push({
@@ -109,6 +109,10 @@ export default {
           return this.createFood()
         }
       })
+    },
+    gameOver () {
+      clearInterval(this.timer)
+      this.timer = null
     }
   },
   mounted () {
@@ -135,6 +139,16 @@ export default {
   watch: {
     coordinates () {
       this.head = this.coordinates.slice(-1)[0]
+      this.body = this.coordinates.slice(0, -1)
+      this.body.find(item => {
+        if (JSON.stringify(item) === JSON.stringify(this.head)) {
+          return this.gameOver()
+        }
+      })
+      if (this.head.x < 0 || this.head.x > 500 || this.head.y < 0 || this.head.y > 500) {
+        return this.gameOver()
+      }
+
       if (JSON.stringify(this.head) === JSON.stringify(this.food)) {
         this.score += 1
         this.isEatting = true
