@@ -16,6 +16,12 @@
         r="10"
         fill="#999"
       />
+      <circle
+        :cx="food.x"
+        :cy="food.y"
+        r="10"
+        fill="red"
+      />
     </svg>
   </div>
 </template>
@@ -39,7 +45,11 @@ export default {
           y: 10
         }
       ],
-      direction: 'right'
+      direction: 'right',
+      food: {
+        x: 0,
+        y: 0
+      }
     }
   },
   methods: {
@@ -85,10 +95,21 @@ export default {
         x: head.x,
         y: head.y + 20
       })
+    },
+    createFood () {
+      this.food.x = (Math.floor(Math.random() * 25) * 2 + 1) * 10
+      this.food.y = (Math.floor(Math.random() * 25) * 2 + 1) * 10
+      // 防止食物出現在 snake 身上
+      this.coordinates.find(item => {
+        if (item.x === this.food.x && item.y === this.food.y) {
+          return this.createFood()
+        }
+      })
     }
   },
   mounted () {
     this.startGame()
+    this.createFood()
     window.addEventListener('keydown', e => {
       switch (e.keyCode) {
         case 37:
