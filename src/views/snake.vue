@@ -1,6 +1,19 @@
 <template>
   <div class="snake">
     <h2>Score: {{score}}</h2>
+    <div class="btn-group">
+      <button
+        v-for="(level, i) in levels"
+        :key="i"
+        @click="getLevel(level)"
+        :class="{'active': clickedLevel === level}"
+        >
+          {{ level }}
+        </button>
+    </div>
+    <div>
+      <button class="startBtn" @click="start()" :disabled="gameStarted">Start</button>
+    </div>
     <svg
       version="1.1"
       baseProfile="full"
@@ -9,7 +22,7 @@
       xmlns="http://www.w3.org/2000/svg"
       class="land"
     >
-      <rect width="100%" height="100%" fill="#d8cdbd" />
+      <rect width="100%" height="100%" fill="#FFE0B5" />
       <circle
         v-for="(coord, i) in coordinates"
         :key="i"
@@ -23,6 +36,7 @@
         :cy="food.y"
         r="10"
         fill="red"
+        v-if="gameStarted"
       />
     </svg>
   </div>
@@ -33,7 +47,8 @@ export default {
   name: 'Snake',
   data () {
     return {
-      coordinates: [
+      coordinates: [],
+      startCoordinates: [
         {
           x: 10,
           y: 10
@@ -56,10 +71,31 @@ export default {
       },
       score: 0,
       isEatting: false,
-      timer: null
+      timer: null,
+      levels: ['Easy', 'Medium', 'Hard'],
+      clickedLevel: 'Easy',
+      speed: 300,
+      gameStarted: false
     }
   },
   methods: {
+    start () {
+      this.gameStarted = true
+      this.direction = 'right'
+      this.coordinates = [...this.startCoordinates]
+      switch (this.clickedLevel) {
+        case 'Easy':
+          this.speed = 300
+          break
+        case 'Medium':
+          this.speed = 200
+          break
+        case 'Hard':
+          this.speed = 100
+          break
+      }
+      this.startGame()
+    },
     startGame () {
       this.timer = setInterval(() => {
         if (!this.isEatting) this.coordinates.shift()
@@ -75,7 +111,7 @@ export default {
           return this.goUp()
         }
         return this.goLeft()
-      }, 300)
+      }, this.speed)
     },
     goLeft () {
       this.coordinates.push({
@@ -114,11 +150,14 @@ export default {
     gameOver () {
       clearInterval(this.timer)
       this.timer = null
+      this.gameStarted = false
+    },
+    getLevel (level) {
+      this.clickedLevel = level
     }
   },
   mounted () {
     this.head = this.coordinates.slice(-1)[0]
-    this.startGame()
     this.createFood()
     window.addEventListener('keydown', e => {
       switch (e.keyCode) {
@@ -164,11 +203,60 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/style/index.scss";
+.startBtn {
+  background-color: $skinColor;
+  border: 2px solid $mainRed;
+  color: $mainRed;
+  letter-spacing: 2px;
+  font-weight: bolder;
+  font-size: 16px;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+
+}
+.btn-group {
+  width: 225px;
+  margin: 20px auto;
+  display: table;
+  font-weight: bold;
+
+  button {
+    width: 75px;
+    height: 30px;
+    background-color: $skinColor;
+    border: 1px solid $mainRed;
+    color: $mainRed;
+    cursor: pointer;
+    float: left;
+    letter-spacing: 2px;
+
+    &.active {
+      background-color: $mainRed;
+      color: $skinColor;
+      transition: all 500ms;
+    }
+
+    &:not(:last-child) {
+      border-right: none;
+    }
+
+    &:first-child {
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
+
+    &:last-child {
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+  }
+}
 .land {
   border: 5px solid;
-  border-top-color: #9c753e;
-  border-bottom-color: #9c753e;
-  border-left-color: #b19b7a;
-  border-right-color: #b19b7a;
+  border-top-color: $mainYellow;
+  border-bottom-color: $mainYellow;
+  border-left-color: $lightYellow;
+  border-right-color: $lightYellow;
 }
 </style>
