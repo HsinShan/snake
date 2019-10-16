@@ -7,8 +7,9 @@
       width="500"
       height="500"
       xmlns="http://www.w3.org/2000/svg"
+      class="land"
     >
-      <rect width="100%" height="100%" fill="#eee" />
+      <rect width="100%" height="100%" fill="#d8cdbd" />
       <circle
         v-for="(coord, i) in coordinates"
         :key="i"
@@ -162,5 +163,12 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.land {
+  border: 5px solid;
+  border-top-color: #9c753e;
+  border-bottom-color: #9c753e;
+  border-left-color: #b19b7a;
+  border-right-color: #b19b7a;
+}
 </style>
